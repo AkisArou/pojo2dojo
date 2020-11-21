@@ -36,7 +36,6 @@ func makeDartClass(className string, javaClassProperties []string) string {
 	dartClass := fmt.Sprintf(`
 %s %s {
 %s
-
 	%s({
 		%s
 	})
