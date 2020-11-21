@@ -51,7 +51,6 @@ func (p *DartProperty) getDartPropertyString(isForConstructor bool) string {
 		propertyString += fmt.Sprintf("%s %s%s", p.propType, string(DPRIVATE), p.name)
 	} else {
 		propertyString += fmt.Sprintf("%s %s", p.propType, p.name)
-
 	}
 
 	if p.defaultVal != "" {
@@ -65,7 +64,7 @@ func (p *DartProperty) getDartPropertyString(isForConstructor bool) string {
 	return propertyString
 }
 
-func makeDartProperty(javaParts [4]string) DartProperty {
+func makeDartProperty(javaParts *[4]string) DartProperty {
 	property := DartProperty{}
 	property.setName(javaParts[0])
 	property.setPropType(javaParts[1])

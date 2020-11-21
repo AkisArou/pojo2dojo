@@ -25,9 +25,9 @@ func parseJavaClass(class string) (string, []string) {
 	return className, classProperties
 }
 
-func parseJavaProperty(javaProp string) ([4]string, error) {
+func parseJavaProperty(javaProp string) (*[4]string, error) {
 	if javaProp == "" || javaProp == " " {
-		return [4]string{}, fmt.Errorf("not parsable string")
+		return &[4]string{}, fmt.Errorf("not parsable string")
 	}
 
 	parts := strings.Split(strings.TrimSpace(javaProp), " ")
@@ -46,5 +46,5 @@ func parseJavaProperty(javaProp string) ([4]string, error) {
 		defaultVal = ""
 	}
 
-	return [4]string{parts[2], parts[1], parts[0], defaultVal}, nil
+	return &[4]string{parts[2], parts[1], parts[0], defaultVal}, nil
 }
