@@ -1,11 +1,11 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	className, classProperties := parseJavaClass(javaClassExample)
+	mockDartFileName := "mockDart.dart"
+	mockJavaFileName := "mockJava.java"
+
+	mockJavaFile := readJavaFile(makePathWithFolderFile(baseFolder, mockJavaFileName))
+	className, classProperties := parseJavaClass(mockJavaFile)
 	dartClass := makeDartClass(className, classProperties)
-	fmt.Println(dartClass)
+	generateDartFile(dartClass, makePathWithFolderFile(baseFolder, mockDartFileName))
 }
