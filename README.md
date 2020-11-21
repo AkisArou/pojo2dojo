@@ -1,2 +1,2 @@
-# pojo2dojo
+# pojo2podo
 Just playing around with Golang
