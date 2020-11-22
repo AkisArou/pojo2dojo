@@ -64,12 +64,12 @@ func (p *DartProperty) getDartPropertyString(isForConstructor bool) string {
 	return propertyString
 }
 
-func makeDartProperty(javaParts *[4]string) DartProperty {
+func makeDartProperty(javaParts *[4]string) *DartProperty {
 	property := DartProperty{}
 	property.setName(javaParts[0])
 	property.setPropType(javaParts[1])
 	property.setAccessor(JavaAccessors(javaParts[2]))
 	property.setDefaultValue(javaParts[3])
 
-	return property
+	return &property
 }
