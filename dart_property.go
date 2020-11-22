@@ -18,13 +18,13 @@ type DartProperty struct {
 }
 
 func NewDartProperty(javaParts *[4]string) *DartProperty {
-	property := DartProperty{}
+	property := &DartProperty{}
 	property.SetName(javaParts[0])
 	property.SetPropType(javaParts[1])
 	property.SetAccessor(JavaAccessors(javaParts[2]))
 	property.SetDefaultValue(javaParts[3])
 
-	return &property
+	return property
 }
 
 func (p *DartProperty) SetAccessor(javaAccessor JavaAccessors) {
