@@ -24,7 +24,7 @@ func makeDartClass(className string, javaClassProperties []string) string {
 			log.Fatal(err)
 		}
 
-		dartProp := makeDartProperty(javaParts)
+		dartProp := NewDartProperty(javaParts)
 		dartPropertyString := dartProp.GetDartPropertyString(false)
 		dartProperties += "\t" + dartPropertyString + "\n"
 		dartConstructorProperties += "\t\t" + requiredAnnotation + " " + dartProp.GetDartPropertyString(true) + ",\n"

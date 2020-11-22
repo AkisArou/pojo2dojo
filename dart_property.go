@@ -17,6 +17,16 @@ type DartProperty struct {
 	DefaultVal string
 }
 
+func NewDartProperty(javaParts *[4]string) *DartProperty {
+	property := DartProperty{}
+	property.SetName(javaParts[0])
+	property.SetPropType(javaParts[1])
+	property.SetAccessor(JavaAccessors(javaParts[2]))
+	property.SetDefaultValue(javaParts[3])
+
+	return &property
+}
+
 func (p *DartProperty) SetAccessor(javaAccessor JavaAccessors) {
 	switch javaAccessor {
 	case JPUBLIC:
@@ -62,14 +72,4 @@ func (p *DartProperty) GetDartPropertyString(isForConstructor bool) string {
 	}
 
 	return propertyString
-}
-
-func makeDartProperty(javaParts *[4]string) *DartProperty {
-	property := DartProperty{}
-	property.SetName(javaParts[0])
-	property.SetPropType(javaParts[1])
-	property.SetAccessor(JavaAccessors(javaParts[2]))
-	property.SetDefaultValue(javaParts[3])
-
-	return &property
 }
