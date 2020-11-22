@@ -11,50 +11,50 @@ const (
 )
 
 type DartProperty struct {
-	name       string
-	propType   string
-	accessor   DartAccessors
-	defaultVal string
+	Name       string
+	PropType   string
+	Accessor   DartAccessors
+	DefaultVal string
 }
 
-func (p *DartProperty) setAccessor(javaAccessor JavaAccessors) {
+func (p *DartProperty) SetAccessor(javaAccessor JavaAccessors) {
 	switch javaAccessor {
 	case JPUBLIC:
-		p.accessor = DPUBLIC
+		p.Accessor = DPUBLIC
 	case JPRIVATE:
-		p.accessor = DPRIVATE
+		p.Accessor = DPRIVATE
 	case JPROTECTED:
-		p.accessor = DPROTECTED
+		p.Accessor = DPROTECTED
 	}
 }
 
-func (p *DartProperty) setDefaultValue(defaultVal string) {
-	p.defaultVal = defaultVal
+func (p *DartProperty) SetDefaultValue(defaultVal string) {
+	p.DefaultVal = defaultVal
 }
 
-func (p *DartProperty) setName(name string) {
-	p.name = name
+func (p *DartProperty) SetName(name string) {
+	p.Name = name
 }
 
-func (p *DartProperty) setPropType(propType string) {
-	p.propType = propType
+func (p *DartProperty) SetPropType(propType string) {
+	p.PropType = propType
 }
 
-func (p *DartProperty) getDartPropertyString(isForConstructor bool) string {
+func (p *DartProperty) GetDartPropertyString(isForConstructor bool) string {
 	var propertyString string
 
-	if p.accessor == DPROTECTED && !isForConstructor {
-		propertyString += string(p.accessor) + "\n\t"
+	if p.Accessor == DPROTECTED && !isForConstructor {
+		propertyString += string(p.Accessor) + "\n\t"
 	}
 
-	if p.accessor == DPRIVATE {
-		propertyString += fmt.Sprintf("%s %s%s", p.propType, string(DPRIVATE), p.name)
+	if p.Accessor == DPRIVATE {
+		propertyString += fmt.Sprintf("%s %s%s", p.PropType, string(DPRIVATE), p.Name)
 	} else {
-		propertyString += fmt.Sprintf("%s %s", p.propType, p.name)
+		propertyString += fmt.Sprintf("%s %s", p.PropType, p.Name)
 	}
 
-	if p.defaultVal != "" {
-		propertyString += fmt.Sprintf(" = %s", p.defaultVal)
+	if p.DefaultVal != "" {
+		propertyString += fmt.Sprintf(" = %s", p.DefaultVal)
 	}
 
 	if !isForConstructor {
@@ -66,10 +66,10 @@ func (p *DartProperty) getDartPropertyString(isForConstructor bool) string {
 
 func makeDartProperty(javaParts *[4]string) *DartProperty {
 	property := DartProperty{}
-	property.setName(javaParts[0])
-	property.setPropType(javaParts[1])
-	property.setAccessor(JavaAccessors(javaParts[2]))
-	property.setDefaultValue(javaParts[3])
+	property.SetName(javaParts[0])
+	property.SetPropType(javaParts[1])
+	property.SetAccessor(JavaAccessors(javaParts[2]))
+	property.SetDefaultValue(javaParts[3])
 
 	return &property
 }

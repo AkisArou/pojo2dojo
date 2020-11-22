@@ -25,9 +25,9 @@ func makeDartClass(className string, javaClassProperties []string) string {
 		}
 
 		dartProp := makeDartProperty(javaParts)
-		dartPropertyString := dartProp.getDartPropertyString(false)
+		dartPropertyString := dartProp.GetDartPropertyString(false)
 		dartProperties += "\t" + dartPropertyString + "\n"
-		dartConstructorProperties += "\t\t" + requiredAnnotation + " " + dartProp.getDartPropertyString(true) + ",\n"
+		dartConstructorProperties += "\t\t" + requiredAnnotation + " " + dartProp.GetDartPropertyString(true) + ",\n"
 	}
 
 	dartConstructorProperties = strings.TrimSpace(dartConstructorProperties)
