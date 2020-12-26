@@ -6,8 +6,8 @@ type DartAccessors string
 
 const (
 	DPRIVATE   DartAccessors = "_"
-	DPUBLIC                  = ""
-	DPROTECTED               = "@protected"
+	DPUBLIC    DartAccessors = ""
+	DPROTECTED DartAccessors = "@protected"
 )
 
 type DartProperty struct {

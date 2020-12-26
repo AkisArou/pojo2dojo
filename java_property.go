@@ -4,8 +4,8 @@ type JavaAccessors string
 
 const (
 	JPRIVATE   JavaAccessors = "private"
-	JPUBLIC                  = "public"
-	JPROTECTED               = "protected"
+	JPUBLIC    JavaAccessors = "public"
+	JPROTECTED JavaAccessors = "protected"
 )
 
 type JavaProperty struct {

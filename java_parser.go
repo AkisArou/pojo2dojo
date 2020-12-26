@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -53,10 +52,10 @@ func parseJavaProperty(javaPropUnparsed string) (*JavaProperty, error) {
 		parts[idx] = strings.Replace(strings.TrimSpace(part), ";", "", 1)
 	}
 
-	fmt.Printf("PART[0] %v\n", parts[0] == "private")
-
-	if parts[0] != "private" && parts[0] != "protected" && parts[0] != "public" {
-		parts = append([]string{JPUBLIC}, parts...)
+	if JavaAccessors(parts[0]) != JPROTECTED &&
+		JavaAccessors(parts[0]) != JPUBLIC &&
+		JavaAccessors(parts[0]) != JPRIVATE {
+		parts = append([]string{string(JPUBLIC)}, parts...)
 	}
 
 	javaProp.Name = parts[2]
