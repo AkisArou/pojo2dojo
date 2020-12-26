@@ -6,45 +6,70 @@ import (
 	"strings"
 )
 
-type JavaAccessors string
-
-const (
-	JPRIVATE   JavaAccessors = "private"
-	JPUBLIC                  = "public"
-	JPROTECTED               = "protected"
-)
+/* Known bugs:
+1) breaks if class keyword contained in comments before class definition
+2) breaks if method declaration starting bracket, is placed like C# style
+3) comments are half missing
+*/
 
 func parseJavaClass(class string) (string, []string) {
 	reClassName := regexp.MustCompile(`class\s(\w+)`)
 	className := strings.TrimSpace(strings.Split(reClassName.FindString(class), "class")[1])
 
-	reClassProperties := regexp.MustCompile(`{[\s\S]*}`)
-	classPropertiesStr := reClassProperties.FindString(class)
-	classProperties := strings.Split(strings.TrimSpace(classPropertiesStr[1:len(classPropertiesStr)-1]), ";")
+	reClassBody := regexp.MustCompile(`{[\s\S]*}`)
+	classBodyStr := reClassBody.FindString(class)
+
+	classBodyLines := strings.Split(strings.TrimSpace(classBodyStr[1:len(classBodyStr)-1]), "\n")
+
+	var classProperties []string
+
+	blockCount := 0
+
+	for _, line := range classBodyLines {
+		if blockCount >= 1 && strings.Contains(line, "}") {
+			blockCount -= 1
+			continue
+		} else if blockCount >= 1 || line == "" || line == " " {
+			continue
+		} else if strings.Contains(line, "{") {
+			blockCount += 1
+			continue
+		} else if strings.Contains(line, " static ") {
+			continue
+		} else {
+			classProperties = append(classProperties, line)
+		}
+	}
 
 	return className, classProperties
 }
 
-func parseJavaProperty(javaProp string) (*[4]string, error) {
-	if javaProp == "" || javaProp == " " {
-		return &[4]string{}, fmt.Errorf("not parsable string")
-	}
+func parseJavaProperty(javaPropUnparsed string) (*JavaProperty, error) {
+	javaProp := &JavaProperty{}
 
-	parts := strings.Split(strings.TrimSpace(javaProp), " ")
+	parts := strings.Split(strings.TrimSpace(javaPropUnparsed), " ")
 
 	for idx, part := range parts {
-		parts[idx] = strings.TrimSpace(part)
+		parts[idx] = strings.Replace(strings.TrimSpace(part), ";", "", 1)
 	}
 
-	hasDefaultValue := strings.Index(javaProp, "=") > -1
+	fmt.Printf("PART[0] %v\n", parts[0] == "private")
 
-	var defaultVal string
+	if parts[0] != "private" && parts[0] != "protected" && parts[0] != "public" {
+		parts = append([]string{JPUBLIC}, parts...)
+	}
+
+	javaProp.Name = parts[2]
+	javaProp.PropType = parts[1]
+	javaProp.Accessor = JavaAccessors(parts[0])
+
+	hasDefaultValue := strings.Index(javaPropUnparsed, "=") > -1
 
 	if hasDefaultValue {
-		defaultVal = parts[len(parts)-1]
+		javaProp.DefaultVal = parts[len(parts)-1]
 	} else {
-		defaultVal = ""
+		javaProp.DefaultVal = ""
 	}
 
-	return &[4]string{parts[2], parts[1], parts[0], defaultVal}, nil
+	return javaProp, nil
 }

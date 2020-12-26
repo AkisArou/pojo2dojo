@@ -17,12 +17,12 @@ type DartProperty struct {
 	DefaultVal string
 }
 
-func NewDartProperty(javaParts *[4]string) *DartProperty {
+func NewDartProperty(javaProp *JavaProperty) *DartProperty {
 	property := &DartProperty{}
-	property.SetName(javaParts[0])
-	property.SetPropType(javaParts[1])
-	property.SetAccessor(JavaAccessors(javaParts[2]))
-	property.SetDefaultValue(javaParts[3])
+	property.SetName(javaProp.Name)
+	property.SetPropType(javaProp.PropType)
+	property.SetAccessor(javaProp.Accessor)
+	property.SetDefaultValue(javaProp.DefaultVal)
 
 	return property
 }
