@@ -1,2 +1,3 @@
 # pojo2podo
-Just playing around with Golang
+Plain old Java Object to Dart object
+-Just playing around with Golang-
