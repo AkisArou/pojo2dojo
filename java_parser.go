@@ -74,7 +74,7 @@ func (jp *JavaParser) isMethod(line string) bool {
 }
 
 func (jp *JavaParser) setClassName(classNameContainingLine string) string {
-	s := strings.Split(classNameContainingLine, classKeyword)[1]
+	s := strings.Split(classNameContainingLine, "class")[1]
 	return strings.Split(s, " ")[1]
 }
 
