@@ -1,3 +1,5 @@
+
+//Random comment
 public class MyBean {
   private String first, second, third;
   private String someProperty;
