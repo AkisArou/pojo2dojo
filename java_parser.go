@@ -87,20 +87,21 @@ func (jp *JavaParser) getClassProperties(rawProps []string) []ClassPropertySGP {
 			var defaultValue = ""
 
 			multiProps := strings.Split(prop, ",")
+			multiPropsLen := len(multiProps)
 			indexProp := strings.Split(multiProps[0], " ")
-			lastProp := multiProps[len(multiProps)-1]
+			lastProp := multiProps[multiPropsLen-1]
 			defaultValueIdx := strings.Index(lastProp, "=")
 
 			if defaultValueIdx > -1 {
-				defaultValue = strings.Replace(lastProp[strings.Index(lastProp, "="):], ";", "", 1)
+				defaultValue = lastProp[strings.Index(lastProp, "="):]
+				multiProps[multiPropsLen-1] = strings.Replace(lastProp, defaultValue, "", 1)
 			}
 
 			propAccType := strings.Join(indexProp[:len(indexProp)-1], " ")
+			pProps = append(pProps, fmt.Sprintf("%s %s", multiProps[0], defaultValue))
 
-			pProps = append(pProps, multiProps[0]+defaultValue)
-
-			for i := 1; i < len(multiProps); i++ {
-				pProps = append(pProps, fmt.Sprintf("%s %s", propAccType, strings.TrimSpace(multiProps[i])+defaultValue))
+			for i := 1; i < multiPropsLen; i++ {
+				pProps = append(pProps, fmt.Sprintf("%s %s %s", propAccType, strings.TrimSpace(multiProps[i]), defaultValue))
 			}
 
 			for _, s := range pProps {
