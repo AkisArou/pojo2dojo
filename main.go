@@ -4,8 +4,12 @@ func main() {
 	mockDartFileName := "mockDart.dart"
 	mockJavaFileName := "mockJava.java"
 
+	javaParser := JavaParser{}
+	dartBuilder := DartClassBuilder{}
+
 	mockJavaFile := readJavaFile(makePathWithFolderFile(baseFolder, mockJavaFileName))
-	className, classProperties := parseJavaClass(mockJavaFile)
-	dartClass := makeDartClass(className, classProperties)
-	generateDartFile(dartClass, makePathWithFolderFile(baseFolder, mockDartFileName))
+
+	result := javaParser.Parse(mockJavaFile)
+	dc := dartBuilder.Build(result)
+	generateDartFile(dc, makePathWithFolderFile(baseFolder, mockDartFileName))
 }

@@ -1,74 +1,136 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
 
-/* Known bugs:
-1) breaks if class keyword contained in comments before class definition
-2) breaks if method declaration starting bracket, is placed like C# style
-3) comments are half missing
-*/
+type JavaParser struct{}
 
-func parseJavaClass(class string) (string, []string) {
-	reClassName := regexp.MustCompile(`class\s(\w+)`)
-	className := strings.TrimSpace(strings.Split(reClassName.FindString(class), "class")[1])
-
-	reClassBody := regexp.MustCompile(`{[\s\S]*}`)
-	classBodyStr := reClassBody.FindString(class)
-
-	classBodyLines := strings.Split(strings.TrimSpace(classBodyStr[1:len(classBodyStr)-1]), "\n")
+func (jp *JavaParser) Parse(class string) *ParsedResult {
+	classBodyLines := strings.Split(class, "\n")
 
 	var classProperties []string
+	var classNameContainingLine string
 
 	blockCount := 0
 
 	for _, line := range classBodyLines {
-		if blockCount >= 1 && strings.Contains(line, "}") {
-			blockCount -= 1
+		if jp.isComment(line) {
 			continue
-		} else if blockCount >= 1 || line == "" || line == " " {
+		} else if jp.isMethodAnnotation(line) {
 			continue
-		} else if strings.Contains(line, "{") {
+		} else if jp.isEmptyLine(line, blockCount) {
+			continue
+		} else if jp.isClassNameContainingLine(line) {
+			classNameContainingLine = line
+		} else if jp.isStartingBlock(line) {
 			blockCount += 1
-			continue
-		} else if strings.Contains(line, " static ") {
+		} else if jp.isEndingBlock(line, blockCount) {
+			blockCount -= 1
+		} else if jp.isMethod(line) {
 			continue
 		} else {
 			classProperties = append(classProperties, line)
 		}
 	}
 
-	return className, classProperties
+	pr := &ParsedResult{}
+	pr.className = jp.setClassName(classNameContainingLine)
+	pr.classProperties = jp.getClassProperties(classProperties)
+
+	return pr
 }
 
-func parseJavaProperty(javaPropUnparsed string) (*JavaProperty, error) {
+func (jp *JavaParser) isComment(line string) bool {
+	return line == "//"
+}
+
+func (jp *JavaParser) isMethodAnnotation(line string) bool {
+	return strings.HasPrefix(strings.TrimSpace(line), "@")
+}
+
+func (jp *JavaParser) isClassNameContainingLine(line string) bool {
+	reClassName := regexp.MustCompile(`class\s(\w+)`)
+	return reClassName.MatchString(line)
+}
+
+func (jp *JavaParser) isStartingBlock(line string) bool {
+	return strings.HasSuffix(line, "{") || strings.HasPrefix(line, "{")
+}
+
+func (jp *JavaParser) isEndingBlock(line string, blockCount int) bool {
+	return blockCount >= 1 && (strings.HasSuffix(line, "}") || strings.HasPrefix(line, "}"))
+}
+
+func (jp *JavaParser) isEmptyLine(line string, blockCount int) bool {
+	return blockCount >= 1 || line == "" || line == " "
+}
+
+func (jp *JavaParser) isMethod(line string) bool {
+	reMethod := regexp.MustCompile(`\(([^)]+)\)`)
+	return reMethod.MatchString(line)
+}
+
+func (jp *JavaParser) setClassName(classNameContainingLine string) string {
+	s := strings.Split(classNameContainingLine, classKeyword)[1]
+	return strings.Split(s, " ")[1]
+}
+
+func (jp *JavaParser) getClassProperties(rawProps []string) []ClassPropertySGP {
+	var cp []ClassPropertySGP
+
+	for _, prop := range rawProps {
+		if strings.Contains(prop, ",") {
+			var pProps []string
+
+			multiProps := strings.Split(prop, ",")
+			indexProp := strings.Split(multiProps[0], " ")
+			propAccType := strings.Join(indexProp[:len(indexProp)-1], " ")
+
+			pProps = append(pProps, multiProps[0])
+
+			for i := 1; i < len(multiProps); i++ {
+				pProps = append(pProps, fmt.Sprintf("%s %s", propAccType, strings.TrimSpace(multiProps[i])))
+			}
+
+			for _, s := range pProps {
+				cp = append(cp, jp.parseRawProperty(s))
+			}
+
+		} else {
+			cp = append(cp, jp.parseRawProperty(prop))
+		}
+	}
+
+	return cp
+}
+
+func (jp *JavaParser) parseRawProperty(propertyRaw string) ClassPropertySGP {
+
+	javaPropUnparsed := strings.Replace(strings.TrimSpace(propertyRaw), ";", "", 1)
 	javaProp := &JavaProperty{}
 
 	parts := strings.Split(strings.TrimSpace(javaPropUnparsed), " ")
 
-	for idx, part := range parts {
-		parts[idx] = strings.Replace(strings.TrimSpace(part), ";", "", 1)
+	if parts[0] != JPROTECTED &&
+		parts[0] != JPUBLIC &&
+		parts[0] != JPRIVATE {
+		parts = append([]string{JPUBLIC}, parts...)
 	}
 
-	if JavaAccessors(parts[0]) != JPROTECTED &&
-		JavaAccessors(parts[0]) != JPUBLIC &&
-		JavaAccessors(parts[0]) != JPRIVATE {
-		parts = append([]string{string(JPUBLIC)}, parts...)
-	}
-
-	javaProp.Name = parts[2]
-	javaProp.PropType = parts[1]
-	javaProp.Accessor = JavaAccessors(parts[0])
+	javaProp.SetName(parts[2])
+	javaProp.SetPropType(parts[1])
+	javaProp.SetAccessor(parts[0])
 
 	hasDefaultValue := strings.Index(javaPropUnparsed, "=") > -1
 
 	if hasDefaultValue {
-		javaProp.DefaultVal = parts[len(parts)-1]
+		javaProp.SetDefaultValue(parts[len(parts)-1])
 	} else {
-		javaProp.DefaultVal = ""
+		javaProp.SetDefaultValue("")
 	}
 
-	return javaProp, nil
+	return javaProp
 }
