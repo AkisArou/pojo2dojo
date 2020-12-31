@@ -84,15 +84,23 @@ func (jp *JavaParser) getClassProperties(rawProps []string) []ClassPropertySGP {
 	for _, prop := range rawProps {
 		if strings.Contains(prop, ",") {
 			var pProps []string
+			var defaultValue = ""
 
 			multiProps := strings.Split(prop, ",")
 			indexProp := strings.Split(multiProps[0], " ")
+			lastProp := multiProps[len(multiProps)-1]
+			defaultValueIdx := strings.Index(lastProp, "=")
+
+			if defaultValueIdx > -1 {
+				defaultValue = strings.Replace(lastProp[strings.Index(lastProp, "="):], ";", "", 1)
+			}
+
 			propAccType := strings.Join(indexProp[:len(indexProp)-1], " ")
 
-			pProps = append(pProps, multiProps[0])
+			pProps = append(pProps, multiProps[0]+defaultValue)
 
 			for i := 1; i < len(multiProps); i++ {
-				pProps = append(pProps, fmt.Sprintf("%s %s", propAccType, strings.TrimSpace(multiProps[i])))
+				pProps = append(pProps, fmt.Sprintf("%s %s", propAccType, strings.TrimSpace(multiProps[i])+defaultValue))
 			}
 
 			for _, s := range pProps {
@@ -108,11 +116,10 @@ func (jp *JavaParser) getClassProperties(rawProps []string) []ClassPropertySGP {
 }
 
 func (jp *JavaParser) parseRawProperty(propertyRaw string) ClassPropertySGP {
-
 	javaPropUnparsed := strings.Replace(strings.TrimSpace(propertyRaw), ";", "", 1)
 	javaProp := &JavaProperty{}
 
-	parts := strings.Split(strings.TrimSpace(javaPropUnparsed), " ")
+	parts := strings.Split(javaPropUnparsed, " ")
 
 	if parts[0] != JPROTECTED &&
 		parts[0] != JPUBLIC &&
