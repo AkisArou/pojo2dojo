@@ -44,7 +44,8 @@ func (jp *JavaParser) Parse(class string) *ParsedResult {
 }
 
 func (jp *JavaParser) isComment(line string) bool {
-	return strings.HasPrefix(strings.TrimSpace(line), "//")
+	bareLine = strings.TrimSpace(line)
+	return strings.HasPrefix(bareLine, "/") || strings.HasPrefixe(bareLine, "*")
 }
 
 func (jp *JavaParser) isMethodAnnotation(line string) bool {
